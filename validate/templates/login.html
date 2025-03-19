@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script>
+        function loginUser() {
+            let useremail = document.getElementById("useremail").value;
+            let password = document.getElementById("password").value;
+
+            fetch("/login/", {
+                method: "POST",
+                //headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `email=${email}&password=${password}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>Login</h2>
+    <input type="email" id="useremail" placeholder="Enter Email" required><br>
+    <input type="password" id="password" placeholder="Enter Password" required><br>
+    <button onclick="loginUser()">Login</button>
+</body>
+</html>
