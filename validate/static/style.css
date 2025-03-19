@@ -131,12 +131,11 @@ input:focus {
     margin-top: 1.5rem;
 }
 
-/* Styles for login and signup pages */
+
 #otp-section {
     margin-top: 1rem;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;

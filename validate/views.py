@@ -1,4 +1,3 @@
-# validate/views.py
 from django.shortcuts import redirect, render
 import random
 from .models import users
@@ -18,11 +17,9 @@ def signup(request):
         if users.objects.filter(useremail=useremail).exists():
             print("Email already exists!")
             return JsonResponse({"message": "Email already exists"})
-        
+            
         print(f"Generated OTP: {otp}")
-        sender_email = "shivamgautam.hanuai@gmail.com"  # Your email
-        
-        # Send OTP to user
+        sender_email = "shivamgautam.hanuai@gmail.com"
         try:
             send_mail(
                 "Your OTP for signup",
@@ -71,11 +68,7 @@ def login(request):
     
     return render(request, "login.html")
 
-def homepage(request):
-    # # Check if user is logged in
-    # if 'useremail' not in request.session:
-    #     return redirect('login')
-    
+def homepage(request):  
     useremail = request.session['useremail']
     return render(request, "homepage.html", {"useremail": useremail})
 
@@ -90,8 +83,6 @@ def delete_account(request):
         try:
             user = users.objects.get(useremail=useremail)
             user.delete()
-            
-            # Clear session
             del request.session['useremail']
             
             return JsonResponse({"success": True, "message": "Account deleted successfully"})

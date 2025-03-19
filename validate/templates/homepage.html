@@ -1,4 +1,3 @@
-<!-- validate/templates/homepage.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -18,27 +17,15 @@
                 <button class="btn primary" onclick="window.location.href='/logout/'">Logout</button>
                 <button class="btn danger" id="delete-btn">Delete Account</button>
             </div>
-
-            {% comment %} <div id="delete-confirmation" class="modal">
-                <div class="modal-content">
-                    <h2>Confirm Account Deletion</h2>
-                    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-                    <div class="modal-actions">
-                        <button class="btn secondary" id="cancel-delete">Cancel</button>
-                        <button class="btn danger" id="confirm-delete">Delete</button>
-                    </div>
-                </div>
-            </div> {% endcomment %}
         </div>
     </div>
 
     <script>
-        // Get DOM elements
         const deleteBtn = document.getElementById('delete-btn');
         
 
 
-        // Handle account deletion
+    
         deleteBtn.addEventListener('click', () => {
             fetch('/delete-account/', {
                 method: 'POST',
