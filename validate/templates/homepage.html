@@ -19,7 +19,7 @@
                 <button class="btn danger" id="delete-btn">Delete Account</button>
             </div>
 
-            <div id="delete-confirmation" class="modal">
+            {% comment %} <div id="delete-confirmation" class="modal">
                 <div class="modal-content">
                     <h2>Confirm Account Deletion</h2>
                     <p>Are you sure you want to delete your account? This action cannot be undone.</p>
@@ -28,29 +28,18 @@
                         <button class="btn danger" id="confirm-delete">Delete</button>
                     </div>
                 </div>
-            </div>
+            </div> {% endcomment %}
         </div>
     </div>
 
     <script>
         // Get DOM elements
         const deleteBtn = document.getElementById('delete-btn');
-        const deleteConfirmation = document.getElementById('delete-confirmation');
-        const cancelDelete = document.getElementById('cancel-delete');
-        const confirmDelete = document.getElementById('confirm-delete');
+        
 
-        // Show delete confirmation modal
-        deleteBtn.addEventListener('click', () => {
-            deleteConfirmation.style.display = 'flex';
-        });
-
-        // Hide delete confirmation modal
-        cancelDelete.addEventListener('click', () => {
-            deleteConfirmation.style.display = 'none';
-        });
 
         // Handle account deletion
-        confirmDelete.addEventListener('click', () => {
+        deleteBtn.addEventListener('click', () => {
             fetch('/delete-account/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }

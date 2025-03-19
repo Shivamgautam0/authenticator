@@ -61,7 +61,8 @@ def login(request):
         
         try:
             user = users.objects.get(useremail=useremail)
-            if password == user.password:  # Fixed: use user.password instead of users.password
+            if password == user.password:
+                request.session['useremail'] = useremail
                 return JsonResponse({"message": "Login successful!"})
             else:
                 return JsonResponse({"message": "Invalid credentials!"}, status=400)
