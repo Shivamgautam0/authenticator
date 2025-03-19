@@ -1,9 +1,26 @@
+<!-- validate/templates/login.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Login</h1>
+            <input type="email" id="useremail" placeholder="Enter Email" required>
+            <input type="password" id="password" placeholder="Enter Password" required>
+            <button class="btn primary" onclick="loginUser()">Login</button>
+            <p style="text-align: center; margin-top: 1rem;">
+                Don't have an account? <a href="/signup/">Sign up</a>
+            </p>
+        </div>
+    </div>
+
     <script>
         function loginUser() {
             let useremail = document.getElementById("useremail").value;
@@ -11,20 +28,21 @@
 
             fetch("/login/", {
                 method: "POST",
-                //headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `email=${email}&password=${password}`
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `useremail=${useremail}&password=${password}`
             })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
+                if (data.message === "Login successful!") {
+                    window.location.href = "/home/";
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                alert("Server error! Check console.");
             });
         }
     </script>
-</head>
-<body>
-    <h2>Login</h2>
-    <input type="email" id="useremail" placeholder="Enter Email" required><br>
-    <input type="password" id="password" placeholder="Enter Password" required><br>
-    <button onclick="loginUser()">Login</button>
 </body>
 </html>

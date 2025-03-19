@@ -1,0 +1,72 @@
+<!-- validate/templates/homepage.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Home</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Welcome to Your Account</h1>
+            <p>Email: <span id="user-email">{{ useremail }}</span></p>
+            
+            <div class="actions">
+                <button class="btn primary" onclick="window.location.href='/logout/'">Logout</button>
+                <button class="btn danger" id="delete-btn">Delete Account</button>
+            </div>
+
+            <div id="delete-confirmation" class="modal">
+                <div class="modal-content">
+                    <h2>Confirm Account Deletion</h2>
+                    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                    <div class="modal-actions">
+                        <button class="btn secondary" id="cancel-delete">Cancel</button>
+                        <button class="btn danger" id="confirm-delete">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const deleteBtn = document.getElementById('delete-btn');
+        const deleteConfirmation = document.getElementById('delete-confirmation');
+        const cancelDelete = document.getElementById('cancel-delete');
+        const confirmDelete = document.getElementById('confirm-delete');
+
+        // Show delete confirmation modal
+        deleteBtn.addEventListener('click', () => {
+            deleteConfirmation.style.display = 'flex';
+        });
+
+        // Hide delete confirmation modal
+        cancelDelete.addEventListener('click', () => {
+            deleteConfirmation.style.display = 'none';
+        });
+
+        // Handle account deletion
+        confirmDelete.addEventListener('click', () => {
+            fetch('/delete-account/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    window.location.href = '/signup/';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting your account.');
+            });
+        });
+    </script>
+</body>
+</html>

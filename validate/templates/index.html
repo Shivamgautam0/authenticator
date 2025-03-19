@@ -1,53 +1,67 @@
+<!-- validate/templates/index.html -->
 {% load static %}
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
-    
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
-    <h2>Signup</h2>
-    <input type="email" id="useremail" placeholder="Enter Email" required><br>
-    <input type="password" id="password" placeholder="Enter Password" required><br>
-    <button onclick="sendOTP()">Signup</button>
+    <div class="container">
+        <div class="card">
+            <h1>Create Your Account</h1>
+            <input type="email" id="useremail" placeholder="Enter Email" required>
+            <input type="password" id="password" placeholder="Enter Password" required>
+            <button class="btn primary" onclick="sendOTP()">Send OTP</button>
 
-    <div id="otp-section" style="display:none;">
-        <input type="text" id="otp" placeholder="Enter OTP"><br>
-        <button onclick="verifyOTP()">Verify OTP</button>
+            <div id="otp-section" style="display:none;">
+                <input type="text" id="otp" placeholder="Enter OTP">
+                <button class="btn primary" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 1rem;">
+                Already have an account? <a href="/login/">Login</a>
+            </p>
+        </div>
     </div>
-    <script src="{% static 'index.js' %}"defer>
+    
+    <script>
         function sendOTP() {
             let useremail = document.getElementById("useremail").value;
             let password = document.getElementById("password").value;
+
+            if (!useremail || !password) {
+                alert("Please fill all fields");
+                return;
+            }
 
             fetch("/signup/", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: `useremail=${useremail}&password=${password}`,
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                console.log("Raw response:", data);
-                alert(data.message);
+                console.log("Response:", data);
                 if (data.message.includes("OTP sent")) {
                     document.getElementById("otp-section").style.display = "block";
-                } else {
-                    alert(data.message);
-                } catch (e) {
-                    console.error("JSON Parse Error:", e);
-                    alert("Server error! Check console.");
                 }
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                alert("Server error! Check console.");
             });
-            .catch(error => console.error("Fetch error:", error));
         }
 
-        function verifyotp() {
-            let useremail = document.getElementById("email").value;
+        function verifyOTP() {
+            let useremail = document.getElementById("useremail").value;
             let password = document.getElementById("password").value;
             let otp = document.getElementById("otp").value;
 
-            fetch("/verify-otp/", {
+            fetch("/verifyotp/", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: `useremail=${useremail}&password=${password}&otp=${otp}`
@@ -58,6 +72,10 @@
                 if (data.message === "Signup successful!") {
                     window.location.href = "/login/";
                 }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                alert("Server error! Check console.");
             });
         }
     </script>
