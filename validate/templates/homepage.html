@@ -5,34 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Home</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
     <div class="container">
         <div class="card">
             <h1>Welcome to Your Account</h1>
-            
-            <div class="profile-info">
-                <p><span class="profile-label">Username:</span> {{ username }}</p>
-                <p><span class="profile-label">Email:</span> {{ useremail }}</p>
-            </div>
+            <p>Email: <span id="user-email">{{ useremail }}</span></p>
             
             <div class="actions">
                 <button class="btn primary" onclick="window.location.href='/logout/'">Logout</button>
+                <button class="btn secondary" onclick="window.location.href='/change-password/'">Change Password</button>
                 <button class="btn danger" id="delete-btn">Delete Account</button>
-                <button class="btn" onclick="window.location.href='/change-password/'">Change Password</button>  
             </div>
         </div>
     </div>
 
     <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
         const deleteBtn = document.getElementById('delete-btn');
         
         deleteBtn.addEventListener('click', () => {
             if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
                 fetch('/delete-account/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {

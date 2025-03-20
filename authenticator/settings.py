@@ -131,6 +131,11 @@ STATICFILES_DIRS = [
 ]
 
 
+LOGIN_URL = '/login/'
+
+
+SESSION_COOKIE_SECURE = True  # Requires HTTPS
+SESSION_COOKIE_HTTPONLY = True
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

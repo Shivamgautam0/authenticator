@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
     <div class="container">
         <div class="card">
             <h1>Create Your Account</h1>
-            <input type="text" id="username" placeholder="Enter Username" required>
             <input type="email" id="useremail" placeholder="Enter Email" required>
             <input type="password" id="password" placeholder="Enter Password" required>
             <button class="btn primary" onclick="sendOTP()">Send OTP</button>
@@ -28,20 +27,37 @@
     </div>
     
     <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
         function sendOTP() {
-            let username = document.getElementById("username").value;
             let useremail = document.getElementById("useremail").value;
             let password = document.getElementById("password").value;
 
-            if (!username || !useremail || !password) {
+            if (!useremail || !password) {
                 alert("Please fill all fields");
                 return;
             }
 
             fetch("/signup/", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `username=${username}&useremail=${useremail}&password=${password}`,
+                headers: { 
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: `useremail=${useremail}&password=${password}`,
             })
             .then(response => response.json())
             .then(data => {
@@ -58,15 +74,17 @@
         }
 
         function verifyOTP() {
-            let username = document.getElementById("username").value;
             let useremail = document.getElementById("useremail").value;
             let password = document.getElementById("password").value;
             let otp = document.getElementById("otp").value;
 
             fetch("/verifyotp/", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `username=${username}&useremail=${useremail}&password=${password}&otp=${otp}`
+                headers: { 
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: `useremail=${useremail}&password=${password}&otp=${otp}`
             })
             .then(response => response.json())
             .then(data => {
