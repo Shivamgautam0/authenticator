@@ -1,13 +1,11 @@
 from django.shortcuts import redirect, render
 import random
 from .models import users
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse  
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
-
-# Generate new OTP for each request
-def generate_otp():
-    return random.randint(10000, 99999)
+from django.contrib.auth.decorators import login_required
+otp = random.randint(10000, 99999)
 
 @csrf_exempt
 def signup(request):
@@ -21,21 +19,12 @@ def signup(request):
             print("Email already exists!")
             return JsonResponse({"message": "Email already exists"})
             
-        # Generate a new OTP for this request
-        new_otp = generate_otp()
-        print(f"Generated OTP: {new_otp}")
-        
-        # Store data in session
-        request.session['signup_otp'] = new_otp
-        request.session['signup_username'] = username
-        request.session['signup_email'] = useremail
-        request.session['signup_password'] = password
-        
+        print(f"Generated OTP: {otp}")
         sender_email = "shivamgautam.hanuai@gmail.com"
         try:
             send_mail(
-                "Your OTP for signup",
-                f"OTP is {new_otp}",
+                "Your single-use code",
+                f"Hi, {username} \n \n \n OTP is {otp}",
                 sender_email,
                 [useremail],
                 fail_silently=False,
@@ -50,30 +39,14 @@ def signup(request):
 @csrf_exempt
 def verifyotp(request):
     if request.method == 'POST':
+        username = request.POST.get("username")
+        useremail = request.POST.get("useremail")
+        password = request.POST.get("password")
         user_otp = int(request.POST.get("otp"))
         
-        # Get stored data from session
-        stored_otp = request.session.get('signup_otp')
-        stored_username = request.session.get('signup_username')
-        stored_email = request.session.get('signup_email')
-        stored_password = request.session.get('signup_password')
-        
-        if not all([stored_otp, stored_username, stored_email, stored_password]):
-            return JsonResponse({"message": "Session expired! Please try again."}, status=400)
-        
-        if stored_otp == user_otp:
-            # Create new user with stored credentials
-            users.objects.create(
-                username=stored_username,
-                useremail=stored_email, 
-                password=stored_password
-            )
-            
-            # Clear sensitive session data
-            for key in ['signup_otp', 'signup_username', 'signup_email', 'signup_password']:
-                if key in request.session:
-                    del request.session[key]
-                    
+        if otp == user_otp:
+            users.objects.create(username=username,useremail=useremail, password=password)
+            users.save()
             return JsonResponse({"message": "Signup successful!"})
         
         return JsonResponse({"message": "Invalid OTP!"}, status=400)
@@ -91,23 +64,28 @@ def login(request):
             if password == user.password:
                 request.session['useremail'] = useremail
                 request.session['username'] = user.username
-                return JsonResponse({"message": "Login successful!"})
+                
+                return JsonResponse({"message": "Login successful!",})
             else:
                 return JsonResponse({"message": "Invalid credentials!"}, status=400)
         except users.DoesNotExist:
             return JsonResponse({"message": "User not found!"}, status=400)
-    
+        
     return render(request, "login.html")
 
-def homepage(request):  
-    if 'useremail' not in request.session:
-        return redirect('login')
-        
-    useremail = request.session['useremail']
-    username = request.session.get('username', '')
-    return render(request, "homepage.html", {"useremail": useremail, "username": username})
+
+@login_required(login_url='/login/')
+def homepage(request):
+    if 'useremail' in request.session: 
+        return render(request, "homepage.html", {
+            "username": request.session.get("username", "Guest"),
+            "useremail": request.session["useremail"]
+        })
+    else:
+        return redirect("/login/")
 
 @csrf_exempt
+@login_required(login_url='/login/')
 def delete_account(request):
     if request.method == "POST":
         if 'useremail' not in request.session:
@@ -119,8 +97,6 @@ def delete_account(request):
             user = users.objects.get(useremail=useremail)
             user.delete()
             del request.session['useremail']
-            if 'username' in request.session:
-                del request.session['username']
             
             return JsonResponse({"success": True, "message": "Account deleted successfully"})
         except users.DoesNotExist:
@@ -129,10 +105,29 @@ def delete_account(request):
             return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=500)
     
     return JsonResponse({"success": False, "message": "Invalid request method"}, status=400)
+@csrf_exempt
+def changepassword(request):
+    if request.method == "POST":
+        if 'useremail' not in request.session:
+            return JsonResponse({"success": False, "message": "Not logged in"}, status=401)
+        useremail = request.session['useremail']
+        old_password = request.POST.get("old_password")
+        new_password = request.POST.get("new_password")
+        try:
+            user = users.objects.get(useremail=useremail)
+            if user.password == old_password:
+                user.password = new_password
+                user.save()
+                return JsonResponse({"success": True, "message": "Password changed successfully"})
+            else:
+                return JsonResponse({"success": False, "message": "Invalid old password"}, status=400)
+        except users.DoesNotExist:
+            return JsonResponse({"success": False, "message": "User not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=500)
+    return JsonResponse({"success": False, "message": "GET method not allowed"}, status=405)
 
 def logout(request):
-    if 'useremail' in request.session:
+    if 'useremail'in request.session:
         del request.session['useremail']
-    if 'username' in request.session:
-        del request.session['username']
     return redirect('login')

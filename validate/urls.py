@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import signup, verifyotp, login,homepage,delete_account,logout
+from .views import signup, verifyotp, login,homepage,delete_account,logout,changepassword
 from django.shortcuts import redirect
 
 def home(request):
@@ -13,4 +13,5 @@ urlpatterns = [
     path("home/", homepage, name="homepage"),
     path("delete-account/", delete_account, name="delete-account"),
     path("logout/", logout, name="logout"),
+    path("changepassword/", changepassword, name="changepassword"),
 ]
