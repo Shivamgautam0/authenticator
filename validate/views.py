@@ -46,7 +46,6 @@ def verifyotp(request):
         
         if otp == user_otp:
             users.objects.create(username=username,useremail=useremail, password=password)
-            users.save()
             return JsonResponse({"message": "Signup successful!"})
         
         return JsonResponse({"message": "Invalid OTP!"}, status=400)
@@ -106,7 +105,7 @@ def delete_account(request):
     
     return JsonResponse({"success": False, "message": "Invalid request method"}, status=400)
 @csrf_exempt
-def changepassword(request):
+def change_password(request):
     if request.method == "POST":
         if 'useremail' not in request.session:
             return JsonResponse({"success": False, "message": "Not logged in"}, status=401)
