@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
     <div class="container">
         <div class="card">
             <h1>Create Your Account</h1>
+            <input type="text" id="username" placeholder="Enter Username" required>
             <input type="email" id="useremail" placeholder="Enter Email" required>
             <input type="password" id="password" placeholder="Enter Password" required>
             <button class="btn primary" onclick="sendOTP()">Send OTP</button>
@@ -28,10 +29,11 @@
     
     <script>
         function sendOTP() {
+            let username = document.getElementById("username").value;
             let useremail = document.getElementById("useremail").value;
             let password = document.getElementById("password").value;
 
-            if (!useremail || !password) {
+            if (!username || !useremail || !password) {
                 alert("Please fill all fields");
                 return;
             }
@@ -39,7 +41,7 @@
             fetch("/signup/", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `useremail=${useremail}&password=${password}`,
+                body: `username=${username}&useremail=${useremail}&password=${password}`,
             })
             .then(response => response.json())
             .then(data => {
@@ -56,6 +58,7 @@
         }
 
         function verifyOTP() {
+            let username = document.getElementById("username").value;
             let useremail = document.getElementById("useremail").value;
             let password = document.getElementById("password").value;
             let otp = document.getElementById("otp").value;
@@ -63,7 +66,7 @@
             fetch("/verifyotp/", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `useremail=${useremail}&password=${password}&otp=${otp}`
+                body: `username=${username}&useremail=${useremail}&password=${password}&otp=${otp}`
             })
             .then(response => response.json())
             .then(data => {
