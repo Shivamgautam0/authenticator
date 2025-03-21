@@ -127,10 +127,15 @@ EMAIL_HOST_PASSWORD = "wjrj vyzr lvmh dsil"
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "validate", "static"),
 ]
 
 
+LOGIN_URL = '/login/'
+
+
+SESSION_COOKIE_SECURE = True  # Requires HTTPS
+SESSION_COOKIE_HTTPONLY = True
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
